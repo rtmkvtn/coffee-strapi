@@ -4,7 +4,8 @@
   "info": {
     "singularName": "category",
     "pluralName": "categories",
-    "displayName": "category"
+    "displayName": "category",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -36,7 +37,15 @@
     "subcategories": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::subcategory.subcategory",
+      "target": "api::subcategory.subcategory"
+    },
+    "order": {
+      "type": "integer"
+    },
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product",
       "mappedBy": "category"
     }
   }

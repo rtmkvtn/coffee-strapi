@@ -65,9 +65,39 @@
       "inversedBy": "users",
       "configurable": false
     },
-    "telegram": {
+    "cart": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::cart.cart",
+      "mappedBy": "user"
+    },
+    "orders": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order.order",
+      "mappedBy": "user"
+    },
+    "telegramId": {
       "type": "string",
-      "required": true
+      "required": true,
+      "unique": true
+    },
+    "firstName": {
+      "type": "string"
+    },
+    "lastName": {
+      "type": "string"
+    },
+    "languageCode": {
+      "type": "string"
+    },
+    "photoUrl": {
+      "type": "string"
+    },
+    "isPremium": {
+      "type": "boolean",
+      "default": false,
+      "required": false
     }
   }
 }

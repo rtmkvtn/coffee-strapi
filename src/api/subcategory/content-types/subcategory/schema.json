@@ -33,11 +33,8 @@
         }
       }
     },
-    "category": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::category.category",
-      "inversedBy": "subcategories"
+    "order": {
+      "type": "integer"
     },
     "products": {
       "type": "relation",
