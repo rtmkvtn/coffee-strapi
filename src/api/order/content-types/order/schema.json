@@ -4,7 +4,8 @@
   "info": {
     "singularName": "order",
     "pluralName": "orders",
-    "displayName": "order"
+    "displayName": "order",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -34,6 +35,12 @@
     "amount": {
       "type": "decimal",
       "required": true
+    },
+    "paymentMethod": {
+      "type": "enumeration",
+      "enum": [
+        "cash"
+      ]
     }
   }
 }

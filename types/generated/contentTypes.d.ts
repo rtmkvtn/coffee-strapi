@@ -453,6 +453,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
 export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   collectionName: 'orders';
   info: {
+    description: '';
     displayName: 'order';
     pluralName: 'orders';
     singularName: 'order';
@@ -469,6 +470,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
+    paymentMethod: Schema.Attribute.Enumeration<['cash']>;
     publishedAt: Schema.Attribute.DateTime;
     state: Schema.Attribute.Enumeration<
       [
