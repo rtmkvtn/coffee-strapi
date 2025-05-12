@@ -477,6 +477,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
         'waitingForPayment',
         'paymentProcessing',
         'paid',
+        'preparing',
         'completed',
         'canceled',
       ]

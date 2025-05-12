@@ -26,6 +26,7 @@
         "waitingForPayment",
         "paymentProcessing",
         "paid",
+        "preparing",
         "completed",
         "canceled"
       ],
