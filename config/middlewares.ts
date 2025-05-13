@@ -5,12 +5,11 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      origin: [
-        'http://localhost:5173',
-        'https://democoffeeandseaguls.ru',
-        'https://cms.democoffeeandseaguls.ru',
-      ],
-      credentials: true,
+      enabled: true,
+      origin: ['http://localhost:5173', 'https://democoffeeandseaguls.ru', 'https://cms.democoffeeandseaguls.ru'],
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+      keepHeaderOnError: true,
     },
   },
   'strapi::poweredBy',
