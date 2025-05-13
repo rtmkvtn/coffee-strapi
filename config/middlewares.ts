@@ -5,7 +5,7 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['http://localhost:5173', 'https://a4fa-166-1-22-232.ngrok-free.app'],
+      origin: ['http://localhost:5173', 'https://democoffeeandseaguls.ru/'],
       credentials: true,
     },
   },
