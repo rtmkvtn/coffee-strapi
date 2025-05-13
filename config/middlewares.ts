@@ -5,7 +5,11 @@ export default [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['http://localhost:5173', 'https://democoffeeandseaguls.ru'],
+      origin: [
+        'http://localhost:5173',
+        'https://democoffeeandseaguls.ru',
+        'https://cms.democoffeeandseaguls.ru',
+      ],
       credentials: true,
     },
   },
