@@ -36,6 +36,12 @@
     "order": {
       "type": "integer"
     },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "subcategories"
+    },
     "products": {
       "type": "relation",
       "relation": "oneToMany",

@@ -32,13 +32,6 @@ export default {
         order: 2,
         locale: 'ru',
         publishedAt: new Date(),
-      },
-      {
-        name: 'Десерты',
-        description: 'Сладкие десерты',
-        order: 3,
-        locale: 'ru',
-        publishedAt: new Date(),
       }
     ];
 
@@ -119,10 +112,8 @@ export default {
           { name: 'С шоколадом и бананом', weight: '2шт', price: 150, locale: 'ru' },
           { name: 'С клубникой и бананом', weight: '2шт', price: 150, locale: 'ru' },
           { name: 'Со сгущёнкой', weight: '2шт', price: 130, locale: 'ru' }
-        ]
-      },
-      'Десерты': {
-        'Блинчики': [
+        ],
+        'Десерты': [
           { name: 'Cheese-cake', weight: '', price: 160, locale: 'ru' },
           { name: 'Сырники', weight: '', price: 170, locale: 'ru' },
           { name: 'Маффин', weight: '', price: 120, locale: 'ru' },
@@ -154,11 +145,8 @@ export default {
           { name: 'Шаурма', order: 1, locale: 'ru' },
           { name: 'Салаты', order: 2, locale: 'ru' },
           { name: 'Закуски', order: 3, locale: 'ru' },
-          { name: 'Блинчики', order: 4, locale: 'ru' }
-        ];
-      } else if (category.name === 'Десерты') {
-        subcategories = [
-          { name: 'Блинчики', order: 1, locale: 'ru' }
+          { name: 'Блинчики', order: 4, locale: 'ru' },
+          { name: 'Десерты', order: 5, locale: 'ru' }
         ];
       }
 
