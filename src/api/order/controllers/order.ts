@@ -59,5 +59,29 @@ export default factories.createCoreController('api::order.order', ({ strapi }) =
     } catch (error) {
       return ctx.internalServerError('Error creating order');
     }
+  },
+  async my(ctx) {
+    try {
+      // Get the authenticated user
+      const user = ctx.state.user;
+      
+      if (!user) {
+        return ctx.unauthorized('You must be logged in to view your orders');
+      }
+
+      // Find orders associated with the user
+      const orders = await strapi.db.query('api::order.order').findMany({
+        where: { user: user.id },
+        populate: ['order_items', 'order_items.product'],
+        orderBy: { createdAt: 'desc' }
+      });
+
+      // Return the orders
+      return {
+        data: orders
+      };
+    } catch (err) {
+      ctx.body = err;
+    }
   }
 }));
