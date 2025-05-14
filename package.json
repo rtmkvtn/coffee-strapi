@@ -15,13 +15,13 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "format": "prettier --config .prettierrc --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"config/**/*.{ts,tsx,js,jsx,json,md}\""
+    "format": "prettier --config .prettierrc.json --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"config/**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.12.5",
-    "@strapi/types": "^5.0.0",
     "@strapi/plugin-users-permissions": "5.12.5",
     "@strapi/strapi": "5.12.5",
+    "@strapi/types": "^5.0.0",
     "pg": "8.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
