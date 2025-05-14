@@ -39,9 +39,7 @@
     },
     "paymentMethod": {
       "type": "enumeration",
-      "enum": [
-        "cash"
-      ]
+      "enum": ["cash"]
     }
   }
 }

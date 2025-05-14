@@ -23,7 +23,7 @@
           "localized": true
         }
       },
-      "required": true,
+      "required": true
     },
     "description": {
       "type": "text",
@@ -52,18 +52,13 @@
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": [
-        "images",
-        "files"
-      ]
+      "allowedTypes": ["images", "files"]
     },
     "images": {
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": [
-        "images"
-      ]
+      "allowedTypes": ["images"]
     },
     "ingredients": {
       "type": "text",

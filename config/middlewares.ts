@@ -6,14 +6,26 @@ export default [
     name: 'strapi::cors',
     config: {
       enabled: true,
-      origin: ['http://localhost:5173', 'https://democoffeeandseaguls.ru', 'https://cms.democoffeeandseaguls.ru'],
-      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With', 'X-Telegram-Init-Data'],
+      origin: [
+        'http://localhost:5173',
+        'https://fd7c-91-149-232-196.ngrok-free.app',
+        'https://democoffeeandseaguls.ru',
+        'https://cms.democoffeeandseaguls.ru',
+      ],
+      headers: [
+        'Content-Type',
+        'Authorization',
+        'Origin',
+        'Accept',
+        'X-Requested-With',
+        'X-Telegram-Init-Data',
+      ],
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
       keepHeaderOnError: true,
       credentials: true,
       maxAge: 86400,
       preflightContinue: false,
-      optionsSuccessStatus: 204
+      optionsSuccessStatus: 204,
     },
   },
   'strapi::poweredBy',
@@ -22,4 +34,4 @@ export default [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-];
+]
