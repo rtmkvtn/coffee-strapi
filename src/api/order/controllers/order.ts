@@ -20,8 +20,21 @@ export default factories.createCoreController(
           return ctx.badRequest('Cart ID is required')
         }
 
-        const cart = await strapi.db.query('api::cart.cart').findOne({
+        // Check for existing waitingForPayment order
+        const existingOrder = await strapi.db
+          .query('api::order.order')
+          .findOne({
+            where: {
+              user: user.id,
+              state: 'waitingForPayment',
+            },
+          })
 
+        if (existingOrder) {
+          return ctx.badRequest('You already have an order waiting for payment')
+        }
+
+        const cart = await strapi.db.query('api::cart.cart').findOne({
           where: { id: cartId, user: user.id },
           populate: ['user'],
         })
@@ -31,7 +44,6 @@ export default factories.createCoreController(
         }
 
         if (
-
           !cart.items ||
           !Array.isArray(cart.items) ||
           cart.items.length === 0
