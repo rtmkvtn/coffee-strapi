@@ -1,16 +1,16 @@
-import { Strapi } from '@strapi/types/dist/core'
+import { Strapi } from '@strapi/types/dist/core';
 
 export const initRolesPermissions = async (strapi: Strapi) => {
-  const roleRepo = strapi.db.query('plugin::users-permissions.role')
-  const permissionRepo = strapi.db.query('plugin::users-permissions.permission')
+  const roleRepo = strapi.db.query('plugin::users-permissions.role');
+  const permissionRepo = strapi.db.query('plugin::users-permissions.permission');
 
-  const roles = await roleRepo.findMany()
-  const publicRole = roles.find((r) => r.type === 'public')
-  const authenticatedRole = roles.find((r) => r.type === 'authenticated')
+  const roles = await roleRepo.findMany();
+  const publicRole = roles.find((r) => r.type === 'public');
+  const authenticatedRole = roles.find((r) => r.type === 'authenticated');
 
   if (!authenticatedRole || !publicRole) {
-    strapi.log.error('❌ Required roles not found')
-    return
+    strapi.log.error('❌ Required roles not found');
+    return;
   }
 
   const newPermissions = [
@@ -38,12 +38,12 @@ export const initRolesPermissions = async (strapi: Strapi) => {
 
     // Public permissions
     { role: publicRole.id, action: 'api::telegram.telegram.auth' },
-  ]
+  ];
 
   for (const perm of newPermissions) {
     const exists = await permissionRepo.findOne({
       where: { role: perm.role, action: perm.action },
-    })
+    });
 
     if (!exists) {
       await permissionRepo.create({
@@ -52,11 +52,11 @@ export const initRolesPermissions = async (strapi: Strapi) => {
           role: perm.role,
           enabled: true,
         },
-      })
+      });
 
-      strapi.log.info(`✅ Permission granted: ${perm.action}`)
+      strapi.log.info(`✅ Permission granted: ${perm.action}`);
     }
   }
 
-  strapi.log.info('✅ Role permissions bootstrapped')
-}
+  strapi.log.info('✅ Role permissions bootstrapped');
+};

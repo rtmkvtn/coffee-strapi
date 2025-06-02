@@ -6,4 +6,4 @@ module.exports = {
       handler: 'telegram.auth',
     },
   ],
-}
+};

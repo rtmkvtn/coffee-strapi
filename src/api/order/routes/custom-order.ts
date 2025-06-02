@@ -6,4 +6,4 @@ module.exports = {
       handler: 'order.my', // or 'plugin::plugin-name.controllerName.functionName' for a plugin-specific controller
     },
   ],
-}
+};
