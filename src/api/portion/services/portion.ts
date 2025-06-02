@@ -1,7 +1,6 @@
 /**
  * portion service
  */
+import { factories } from '@strapi/strapi'
 
-import { factories } from '@strapi/strapi';
-
-export default factories.createCoreService('api::portion.portion');
+export default factories.createCoreService('api::portion.portion')

@@ -15,7 +15,7 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "format": "prettier --config .prettierrc.json --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"config/**/*.{ts,tsx,js,jsx,json,md}\""
+    "format": "prettier --config .prettierrc --write \"src/**/*.{ts,tsx,js,jsx,json,md}\" \"config/**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.12.5",

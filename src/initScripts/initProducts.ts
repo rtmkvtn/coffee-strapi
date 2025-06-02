@@ -1,17 +1,20 @@
-import { Strapi } from '@strapi/types/dist/core';
+import { Strapi } from '@strapi/types/dist/core'
 
 export const initProducts = async (strapi: Strapi) => {
   // Check if we already have categories
-  const existingCategories = await strapi.entityService.findMany('api::category.category', {
-    populate: '*',
-  });
+  const existingCategories = await strapi.entityService.findMany(
+    'api::category.category',
+    {
+      populate: '*',
+    }
+  )
 
   if (existingCategories.length > 0) {
-    console.log('Database already has data, skipping bootstrap');
-    return;
+    console.log('Database already has data, skipping bootstrap')
+    return
   }
 
-  console.log('Starting database bootstrap...');
+  console.log('Starting database bootstrap...')
 
   // Create categories
   const categories = [
@@ -29,7 +32,7 @@ export const initProducts = async (strapi: Strapi) => {
       locale: 'ru',
       publishedAt: new Date(),
     },
-  ];
+  ]
 
   const productsByCategory = {
     Напитки: {
@@ -167,15 +170,18 @@ export const initProducts = async (strapi: Strapi) => {
         { name: 'Донатс', weight: '', price: 100, locale: 'ru' },
       ],
     },
-  };
+  }
 
   for (const categoryData of categories) {
-    const category = await strapi.entityService.create('api::category.category', {
-      data: categoryData,
-    });
+    const category = await strapi.entityService.create(
+      'api::category.category',
+      {
+        data: categoryData,
+      }
+    )
 
     // Create subcategories for each category
-    let subcategories = [];
+    let subcategories = []
 
     if (category.name === 'Напитки') {
       subcategories = [
@@ -185,7 +191,7 @@ export const initProducts = async (strapi: Strapi) => {
         { name: 'Кофе', order: 4, locale: 'ru' },
         { name: 'Авторский чай', order: 5, locale: 'ru' },
         { name: 'Не кофе', order: 6, locale: 'ru' },
-      ];
+      ]
     } else if (category.name === 'Еда') {
       subcategories = [
         { name: 'Шаурма', order: 1, locale: 'ru' },
@@ -193,19 +199,22 @@ export const initProducts = async (strapi: Strapi) => {
         { name: 'Закуски', order: 3, locale: 'ru' },
         { name: 'Блинчики', order: 4, locale: 'ru' },
         { name: 'Десерты', order: 5, locale: 'ru' },
-      ];
+      ]
     }
 
     for (const subcategoryData of subcategories) {
-      const subcategory = await strapi.entityService.create('api::subcategory.subcategory', {
-        data: {
-          ...subcategoryData,
-          description: `Описание ${subcategoryData.name.toLowerCase()}`,
-          category: category.id,
-          locale: 'ru',
-          publishedAt: new Date(),
-        },
-      });
+      const subcategory = await strapi.entityService.create(
+        'api::subcategory.subcategory',
+        {
+          data: {
+            ...subcategoryData,
+            description: `Описание ${subcategoryData.name.toLowerCase()}`,
+            category: category.id,
+            locale: 'ru',
+            publishedAt: new Date(),
+          },
+        }
+      )
 
       // Create products for each subcategory
       const products = productsByCategory[category.name][subcategory.name].map(
@@ -221,15 +230,15 @@ export const initProducts = async (strapi: Strapi) => {
           locale: 'ru',
           publishedAt: new Date(),
         })
-      );
+      )
 
       for (const productData of products) {
         await strapi.entityService.create('api::product.product', {
           data: productData,
-        });
+        })
       }
     }
   }
 
-  console.log('Database bootstrap completed successfully');
-};
+  console.log('Database bootstrap completed successfully')
+}
