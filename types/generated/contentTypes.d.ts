@@ -450,6 +450,47 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
+  collectionName: 'ingredients'
+  info: {
+    description: ''
+    displayName: 'ingredient'
+    pluralName: 'ingredients'
+    singularName: 'ingredient'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ingredient.ingredient'
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    weight: Schema.Attribute.String
+  }
+}
+
 export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   collectionName: 'orders'
   info: {
@@ -491,6 +532,101 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
       'manyToOne',
       'plugin::users-permissions.user'
     >
+  }
+}
+
+export interface ApiPortionPortion extends Struct.CollectionTypeSchema {
+  collectionName: 'portions'
+  info: {
+    displayName: 'portion'
+    pluralName: 'portions'
+    singularName: 'portion'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::portion.portion'
+    > &
+      Schema.Attribute.Private
+    name: Schema.Attribute.String
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiProductToingredientProductToingredient
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_toingredients'
+  info: {
+    displayName: 'productToingredient'
+    pluralName: 'product-toingredients'
+    singularName: 'product-toingredient'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ingredient: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::ingredient.ingredient'
+    >
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-toingredient.product-toingredient'
+    > &
+      Schema.Attribute.Private
+    priceModifier: Schema.Attribute.Decimal
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiProductToportionProductToportion
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_toportions'
+  info: {
+    displayName: 'productToportion'
+    pluralName: 'product-toportions'
+    singularName: 'product-toportion'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-toportion.product-toportion'
+    > &
+      Schema.Attribute.Private
+    portion: Schema.Attribute.Relation<'oneToOne', 'api::portion.portion'>
+    price: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
   }
 }
 
@@ -543,14 +679,6 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       }>
     on_hold: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     order: Schema.Attribute.Integer
-    price: Schema.Attribute.Decimal &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<0>
     publishedAt: Schema.Attribute.DateTime
     subcategory: Schema.Attribute.Relation<
       'manyToOne',
@@ -559,7 +687,6 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    weight: Schema.Attribute.String
   }
 }
 
@@ -1131,7 +1258,11 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser
       'api::cart.cart': ApiCartCart
       'api::category.category': ApiCategoryCategory
+      'api::ingredient.ingredient': ApiIngredientIngredient
       'api::order.order': ApiOrderOrder
+      'api::portion.portion': ApiPortionPortion
+      'api::product-toingredient.product-toingredient': ApiProductToingredientProductToingredient
+      'api::product-toportion.product-toportion': ApiProductToportionProductToportion
       'api::product.product': ApiProductProduct
       'api::subcategory.subcategory': ApiSubcategorySubcategory
       'plugin::content-releases.release': PluginContentReleasesRelease

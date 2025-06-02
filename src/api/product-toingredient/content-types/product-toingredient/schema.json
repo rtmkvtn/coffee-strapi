@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_toingredients",
+  "info": {
+    "singularName": "product-toingredient",
+    "pluralName": "product-toingredients",
+    "displayName": "productToingredient"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient.ingredient"
+    },
+    "priceModifier": {
+      "type": "decimal"
+    }
+  }
+}

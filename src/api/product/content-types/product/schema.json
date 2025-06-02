@@ -38,27 +38,22 @@
       "type": "boolean",
       "default": false
     },
-    "price": {
-      "type": "decimal",
-      "required": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": false
-        }
-      },
-      "default": 0
-    },
     "avatar": {
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": ["images", "files"]
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
     },
     "images": {
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": ["images"]
+      "allowedTypes": [
+        "images"
+      ]
     },
     "ingredients": {
       "type": "text",
@@ -82,9 +77,6 @@
       "relation": "manyToOne",
       "target": "api::category.category",
       "inversedBy": "products"
-    },
-    "weight": {
-      "type": "string"
     }
   }
 }
