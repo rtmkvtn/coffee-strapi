@@ -17,6 +17,14 @@ export default factories.createCoreController(
           .documents('api::product.product')
           .findMany({
             limit: 1000,
+            populate: {
+              category: {
+                fields: ['id'],
+              },
+              subcategory: {
+                fields: ['id'],
+              },
+            },
           })
 
         // For each product, fetch related portions and ingredients
