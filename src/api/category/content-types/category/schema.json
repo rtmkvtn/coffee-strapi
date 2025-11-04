@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -19,7 +19,6 @@
     "name": {
       "type": "string",
       "required": true,
-      "unique": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -37,7 +36,8 @@
     "subcategories": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::subcategory.subcategory"
+      "target": "api::subcategory.subcategory",
+      "mappedBy": "category"
     },
     "order": {
       "type": "integer"

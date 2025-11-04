@@ -8,7 +8,7 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {
@@ -39,10 +39,8 @@
       "default": false
     },
     "avatar": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": ["images", "files"]
+      "type": "string",
+      "required": false
     },
     "images": {
       "type": "media",

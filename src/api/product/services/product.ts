@@ -74,7 +74,6 @@ export default factories.createCoreService(
       // Extract all product IDs for batch queries
       const productIds = products.map((product) => Number(product.id))
 
-      // Batch fetch all portions for all products (2 queries instead of N)
       const [allPortions, allIngredients] = await Promise.all([
         strapi.documents('api::product-toportion.product-toportion').findMany({
           filters: { product: { id: { $in: productIds } } },
@@ -89,7 +88,7 @@ export default factories.createCoreService(
             limit: 10000,
           }),
       ])
-
+      console.log(allIngredients)
       // Group portions and ingredients by product ID for O(1) lookup
       const portionsByProductId = new Map()
       const ingredientsByProductId = new Map()
@@ -110,31 +109,33 @@ export default factories.createCoreService(
         ingredientsByProductId.get(productId).push(ingredient)
       })
 
-      // Transform products with their related data
-      const result = products.map((product) => {
-        const productId = Number(product.id)
+      // Transform products with their related data and filter out products without prices
+      const result = products
+        .map((product) => {
+          const productId = Number(product.id)
 
-        // Get portions for this product
-        const portions = portionsByProductId.get(productId) || []
-        const prices = portions.map((ptp: any) => ({
-          weight: ptp.portion?.name || '',
-          price: ptp.price,
-        }))
+          // Get portions for this product
+          const portions = portionsByProductId.get(productId) || []
+          const prices = portions.map((ptp: any) => ({
+            weight: ptp.portion?.name || '',
+            price: ptp.price,
+          }))
 
-        // Get ingredients for this product
-        const ingredients = ingredientsByProductId.get(productId) || []
-        const additional_ingredients = ingredients.map((pti: any) => ({
-          name: pti.ingredient?.name || '',
-          weight: pti.ingredient?.weight || '',
-          priceModifier: pti.priceModifier,
-        }))
+          // Get ingredients for this product
+          const ingredients = ingredientsByProductId.get(productId) || []
+          const additional_ingredients = ingredients.map((pti: any) => ({
+            name: pti.ingredient?.name || '',
+            weight: pti.ingredient?.weight || '',
+            priceModifier: pti.priceModifier,
+          }))
 
-        return {
-          ...product,
-          prices,
-          additionalIngredients: additional_ingredients,
-        }
-      })
+          return {
+            ...product,
+            prices,
+            additionalIngredients: additional_ingredients,
+          }
+        })
+        .filter((product) => product.prices.length > 0)
 
       const response = {
         data: result,

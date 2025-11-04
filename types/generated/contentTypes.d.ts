@@ -407,7 +407,7 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     singularName: 'category'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -431,7 +431,6 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     >
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.Unique &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -545,17 +544,26 @@ export interface ApiPortionPortion extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    locale: Schema.Attribute.String & Schema.Attribute.Private
+    locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::portion.portion'
-    > &
-      Schema.Attribute.Private
-    name: Schema.Attribute.String
+    >
+    name: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -630,6 +638,39 @@ export interface ApiProductToportionProductToportion
   }
 }
 
+export interface ApiProductTotemperatureProductTotemperature
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_totemperatures'
+  info: {
+    displayName: 'productToTemperature'
+    pluralName: 'product-totemperatures'
+    singularName: 'product-totemperature'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-totemperature.product-totemperature'
+    > &
+      Schema.Attribute.Private
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    temperature: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::temperature.temperature'
+    >
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products'
   info: {
@@ -639,7 +680,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     singularName: 'product'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -647,7 +688,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
-    avatar: Schema.Attribute.Media<'images' | 'files'>
+    avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -699,7 +740,7 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
     singularName: 'subcategory'
   }
   options: {
-    draftAndPublish: true
+    draftAndPublish: false
   }
   pluginOptions: {
     i18n: {
@@ -732,6 +773,36 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
     order: Schema.Attribute.Integer
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>
     publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiTemperatureTemperature extends Struct.CollectionTypeSchema {
+  collectionName: 'temperatures'
+  info: {
+    displayName: 'temperature'
+    pluralName: 'temperatures'
+    singularName: 'temperature'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::temperature.temperature'
+    > &
+      Schema.Attribute.Private
+    publishedAt: Schema.Attribute.DateTime
+    type: Schema.Attribute.Enumeration<['cold', 'hot']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'hot'>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1263,8 +1334,10 @@ declare module '@strapi/strapi' {
       'api::portion.portion': ApiPortionPortion
       'api::product-toingredient.product-toingredient': ApiProductToingredientProductToingredient
       'api::product-toportion.product-toportion': ApiProductToportionProductToportion
+      'api::product-totemperature.product-totemperature': ApiProductTotemperatureProductTotemperature
       'api::product.product': ApiProductProduct
       'api::subcategory.subcategory': ApiSubcategorySubcategory
+      'api::temperature.temperature': ApiTemperatureTemperature
       'plugin::content-releases.release': PluginContentReleasesRelease
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction
       'plugin::i18n.locale': PluginI18NLocale
