@@ -2,6 +2,7 @@ export const subcategoriesData = {
   beverages: [
     {
       order: 1,
+      image: 'milkshake.svg',
       translations: {
         ru: { name: 'Милкшейк', description: 'Описание милкшейк' },
         en: { name: 'Milkshake', description: 'Milkshake description' },
@@ -10,6 +11,7 @@ export const subcategoriesData = {
     },
     {
       order: 2,
+      image: 'lemonade.svg',
       translations: {
         ru: { name: 'Лимонады', description: 'Описание лимонады' },
         en: { name: 'Lemonades', description: 'Lemonades description' },
@@ -18,6 +20,7 @@ export const subcategoriesData = {
     },
     {
       order: 3,
+      image: 'smoothie.svg',
       translations: {
         ru: { name: 'Смузи', description: 'Описание смузи' },
         en: { name: 'Smoothies', description: 'Smoothies description' },
@@ -26,6 +29,7 @@ export const subcategoriesData = {
     },
     {
       order: 4,
+      image: 'coffee.svg',
       translations: {
         ru: { name: 'Кофе', description: 'Описание кофе' },
         en: { name: 'Coffee', description: 'Coffee description' },
@@ -34,6 +38,7 @@ export const subcategoriesData = {
     },
     {
       order: 5,
+      image: 'tea.svg',
       translations: {
         ru: { name: 'Авторский чай', description: 'Описание авторский чай' },
         en: {
@@ -45,6 +50,7 @@ export const subcategoriesData = {
     },
     {
       order: 6,
+      image: 'not_coffee.svg',
       translations: {
         ru: { name: 'Не кофе', description: 'Описание не кофе' },
         en: { name: 'Non-Coffee', description: 'Non-coffee description' },
@@ -55,6 +61,7 @@ export const subcategoriesData = {
   food: [
     {
       order: 1,
+      image: 'shawarma.svg',
       translations: {
         ru: { name: 'Шаурма', description: 'Описание шаурма' },
         en: { name: 'Shawarma', description: 'Shawarma description' },
@@ -63,6 +70,7 @@ export const subcategoriesData = {
     },
     {
       order: 2,
+      image: 'salad.svg',
       translations: {
         ru: { name: 'Салаты', description: 'Описание салаты' },
         en: { name: 'Salads', description: 'Salads description' },
@@ -71,6 +79,7 @@ export const subcategoriesData = {
     },
     {
       order: 3,
+      image: 'snacks.png',
       translations: {
         ru: { name: 'Закуски', description: 'Описание закуски' },
         en: { name: 'Snacks', description: 'Snacks description' },
@@ -79,6 +88,7 @@ export const subcategoriesData = {
     },
     {
       order: 4,
+      image: 'pancakes.svg',
       translations: {
         ru: { name: 'Блинчики', description: 'Описание блинчики' },
         en: { name: 'Pancakes', description: 'Pancakes description' },
@@ -87,6 +97,7 @@ export const subcategoriesData = {
     },
     {
       order: 5,
+      image: 'desserts.svg',
       translations: {
         ru: { name: 'Десерты', description: 'Описание десерты' },
         en: { name: 'Desserts', description: 'Desserts description' },

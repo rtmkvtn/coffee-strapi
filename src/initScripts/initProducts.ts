@@ -321,16 +321,43 @@ export const initProducts = async (
 
     // Create subcategories and products for each subcategory
     for (const subcategoryData of subcategoriesList) {
+      // Upload subcategory image if available
+      let subcategoryImageUrl: string | null = null
+      if (subcategoryData.image) {
+        const projectRoot = path.resolve(__dirname, '../../..')
+        const imagePath = path.join(
+          projectRoot,
+          'src',
+          'initScripts',
+          'initProducts',
+          'subcategories',
+          subcategoryData.image
+        )
+        subcategoryImageUrl = await uploadImageToStrapi(strapi, imagePath)
+        if (subcategoryImageUrl) {
+          console.log(
+            `Uploaded image for subcategory ${subcategoryData.translations['ru'].name}: ${subcategoryImageUrl}`
+          )
+        }
+      }
+
       // Create subcategory (first locale, then localizations)
+      const subcategoryPayload: any = {
+        name: subcategoryData.translations['ru'].name,
+        description: subcategoryData.translations['ru'].description,
+        order: subcategoryData.order,
+        category: categoryDocumentId,
+      }
+
+      // Add image URL if available
+      if (subcategoryImageUrl) {
+        subcategoryPayload.avatar = subcategoryImageUrl
+      }
+
       const subcategory = await strapi
         .documents('api::subcategory.subcategory')
         .create({
-          data: {
-            name: subcategoryData.translations['ru'].name,
-            description: subcategoryData.translations['ru'].description,
-            order: subcategoryData.order,
-            category: categoryDocumentId,
-          },
+          data: subcategoryPayload,
           locale: 'ru',
         })
 
@@ -338,13 +365,20 @@ export const initProducts = async (
 
       // Create localizations for other locales (without relations)
       for (const locale of LOCALES.slice(1)) {
+        const localizedSubcategoryPayload: any = {
+          name: subcategoryData.translations[locale].name,
+          description: subcategoryData.translations[locale].description,
+          order: subcategoryData.order,
+          // Don't include category - relations are shared across locales
+        }
+
+        // Add image URL if available (same URL for all locales)
+        if (subcategoryImageUrl) {
+          localizedSubcategoryPayload.avatar = subcategoryImageUrl
+        }
+
         await strapi.documents('api::subcategory.subcategory').create({
-          data: {
-            name: subcategoryData.translations[locale].name,
-            description: subcategoryData.translations[locale].description,
-            order: subcategoryData.order,
-            // Don't include category - relations are shared across locales
-          },
+          data: localizedSubcategoryPayload,
           locale,
           documentId: subcategoryDocumentId,
         })

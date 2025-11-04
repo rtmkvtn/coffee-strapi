@@ -74,7 +74,7 @@ export default factories.createCoreService(
       // Extract all product IDs for batch queries
       const productIds = products.map((product) => Number(product.id))
 
-      const [allPortions, allIngredients] = await Promise.all([
+      const [allPortions, allIngredients, allTemperatures] = await Promise.all([
         strapi.documents('api::product-toportion.product-toportion').findMany({
           filters: { product: { id: { $in: productIds } } },
           populate: ['portion', 'product'],
@@ -87,11 +87,19 @@ export default factories.createCoreService(
             populate: ['ingredient', 'product'],
             limit: 10000,
           }),
+        strapi
+          .documents('api::product-totemperature.product-totemperature')
+          .findMany({
+            filters: { product: { id: { $in: productIds } } },
+            populate: ['temperature', 'product'],
+            limit: 10000,
+          }),
       ])
-      console.log(allIngredients)
-      // Group portions and ingredients by product ID for O(1) lookup
+
+      // Group portions, ingredients, and temperatures by product ID for O(1) lookup
       const portionsByProductId = new Map()
       const ingredientsByProductId = new Map()
+      const temperaturesByProductId = new Map()
 
       allPortions.forEach((portion) => {
         const productId = portion.product?.id
@@ -107,6 +115,14 @@ export default factories.createCoreService(
           ingredientsByProductId.set(productId, [])
         }
         ingredientsByProductId.get(productId).push(ingredient)
+      })
+
+      allTemperatures.forEach((temperature) => {
+        const productId = temperature.product?.id
+        if (!temperaturesByProductId.has(productId)) {
+          temperaturesByProductId.set(productId, [])
+        }
+        temperaturesByProductId.get(productId).push(temperature)
       })
 
       // Transform products with their related data and filter out products without prices
@@ -129,10 +145,17 @@ export default factories.createCoreService(
             priceModifier: pti.priceModifier,
           }))
 
+          // Get temperatures for this product
+          const temperatures = temperaturesByProductId.get(productId) || []
+          const temperatureTypes = temperatures.map(
+            (ptt: any) => ptt.temperature?.type || ''
+          )
+
           return {
             ...product,
             prices,
             additionalIngredients: additional_ingredients,
+            temperatures: temperatureTypes,
           }
         })
         .filter((product) => product.prices.length > 0)

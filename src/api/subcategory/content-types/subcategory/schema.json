@@ -36,6 +36,9 @@
     "order": {
       "type": "integer"
     },
+    "avatar": {
+      "type": "string"
+    },
     "category": {
       "type": "relation",
       "relation": "manyToOne",

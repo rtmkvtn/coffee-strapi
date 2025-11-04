@@ -748,6 +748,7 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
