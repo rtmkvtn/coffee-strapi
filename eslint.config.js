@@ -13,7 +13,7 @@ module.exports = tseslint.config(
         }
     },
     {
-        ignores: ['node_modules', 'dist', 'eslint.config.js', 'coverage', '.strapi'],
+        ignores: ['node_modules', 'dist', 'eslint.config.js', 'coverage', '.strapi', '**/*.example.*', 'types/generated/**'],
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
