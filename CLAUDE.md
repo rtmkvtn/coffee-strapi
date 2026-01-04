@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**IMPORTANT**: All git commits must be made by the user only. Claude Code should never create commits without explicit user permission.
+
 ## Coffee Strapi Backend
 
 This is a Strapi CMS backend for a coffee shop application built with TypeScript. The project manages coffee products, categories, ingredients, portions, orders, and integrates with Telegram.
@@ -53,8 +55,9 @@ The application follows Strapi's content-type architecture with these main entit
 - **Product**: Core coffee products with localized content (i18n)
 - **Category**: Main product categories (e.g., "Напитки", "Еда")
 - **Subcategory**: Product subcategories within categories
-- **Ingredient**: Additional ingredients for products
+- **Ingredient**: Additional ingredients for products (includes optional weight field)
 - **Portion**: Different serving sizes for products
+- **Temperature**: Temperature options for products (hot/cold enumeration)
 - **Order**: Customer orders
 - **Cart**: Shopping cart functionality
 
@@ -62,28 +65,59 @@ The application follows Strapi's content-type architecture with these main entit
 The application uses junction tables to handle many-to-many relationships:
 - `product-toportion`: Links products to their available portions with pricing
 - `product-toingredient`: Links products to additional ingredients with price modifiers
+- `product-totemperature`: Links products to temperature options (hot/cold)
 
 ### Key Features
-- **Internationalization**: Products support multiple locales (i18n plugin)
+- **Internationalization**: Products support multiple locales (ru, en, zh) via i18n plugin
+- **Caching System**: In-memory cache with TTL support for products, categories, ingredients, and portions
 - **Custom Controllers**: Enhanced product controller with custom `getAll` method that populates related data
 - **Telegram Integration**: Custom Telegram auth endpoint at `/api/telegram/auth`
-- **Bootstrap Data**: Automatic initialization of products and roles on startup
+- **Bootstrap Data**: Automatic initialization of products, categories, subcategories, portions, and temperatures on startup
 
 ## File Structure
 
 ```
 src/
-├── api/               # Strapi API endpoints
-│   ├── product/       # Product management
-│   ├── category/      # Category management
-│   ├── ingredient/    # Ingredient management
-│   ├── portion/       # Portion management
-│   ├── order/         # Order management
-│   ├── cart/          # Shopping cart
-│   └── telegram/      # Telegram integration
-├── extensions/        # Strapi extensions
-├── initScripts/       # Bootstrap scripts
-└── index.ts          # Main application entry
+├── api/                      # Strapi API endpoints
+│   ├── product/              # Product management
+│   ├── category/             # Category management
+│   ├── subcategory/          # Subcategory management
+│   ├── ingredient/           # Ingredient management
+│   ├── portion/              # Portion management
+│   ├── temperature/          # Temperature options (hot/cold)
+│   ├── product-toportion/    # Product-portion junction table
+│   ├── product-toingredient/ # Product-ingredient junction table
+│   ├── product-totemperature/# Product-temperature junction table
+│   ├── order/                # Order management
+│   ├── cart/                 # Shopping cart
+│   ├── cache/                # Cache management endpoints
+│   └── telegram/             # Telegram integration
+├── services/                 # Shared services
+│   └── cache.ts              # In-memory caching service
+├── extensions/               # Strapi extensions
+├── initScripts/              # Bootstrap scripts
+│   ├── initProducts.ts       # Main bootstrap orchestrator
+│   ├── initRolesPermissions.ts
+│   └── initProducts/         # Organized bootstrap data
+│       ├── categories.ts     # Category definitions
+│       ├── subcategories.ts  # Subcategory definitions with SVG images
+│       ├── portions.ts       # Portion size definitions
+│       ├── temperatures.ts   # Temperature options
+│       ├── products/         # Product data by category
+│       │   ├── index.ts
+│       │   ├── coffee.ts
+│       │   ├── desserts.ts
+│       │   ├── lemonades.ts
+│       │   ├── milkshake.ts
+│       │   ├── nonCoffee.ts
+│       │   ├── pancakes.ts
+│       │   ├── salads.ts
+│       │   ├── shawarma.ts
+│       │   ├── smoothies.ts
+│       │   ├── snacks.ts
+│       │   └── signatureTea.ts
+│       └── subcategories/    # SVG images for subcategories
+└── index.ts                  # Main application entry
 ```
 
 ## Code Style
@@ -101,6 +135,16 @@ The product controller (`src/api/product/controllers/product.ts`) includes a cus
 - Joins related portions and ingredients data
 - Returns formatted pricing and additional ingredients information
 
+## Caching System
+
+The application includes a custom in-memory caching system (`src/services/cache.ts`) with:
+- **TTL Support**: Automatic expiration of cached items (default 300 seconds)
+- **Cache Keys**: Predefined keys for products, categories, ingredients, and portions
+- **Invalidation**: Helpers to invalidate product and related caches
+- **Management Endpoints**: `/api/cache/stats`, `/api/cache/clear`, `/api/cache/warmup`
+
+Cache is used in the product service to improve performance for frequently accessed data.
+
 ## Environment Variables
 
 Key environment variables for database configuration:
@@ -109,9 +153,21 @@ Key environment variables for database configuration:
 - `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_NAME`: Connection details
 - `DATABASE_USERNAME`, `DATABASE_PASSWORD`: Credentials
 
+## Bootstrap System
+
+The application includes a comprehensive bootstrap system that automatically initializes data on startup:
+- **Multi-locale Support**: Automatically creates ru, en, zh locales and localized content
+- **Data Initialization**: Categories, subcategories, portions, temperatures, and products
+- **Image Upload**: Automatically uploads product and subcategory images (SVGs for subcategories)
+- **Junction Tables**: Automatically creates product-toportion and product-totemperature relationships
+- **Clean Mode**: Supports `cleanTables` parameter to reset database before bootstrapping
+
+The bootstrap script (`src/initScripts/initProducts.ts`) is modular with separate files for each entity type.
+
 ## Development Notes
 
-- The application automatically initializes sample data via `initScripts/initProducts.ts`
+- Bootstrap runs automatically on startup if database is empty
 - Custom routes are defined in individual route files (e.g., `custom-product.ts`)
 - Media files are stored in `public/uploads/` with automatic image resizing
 - The project uses Strapi v5.12.5 with TypeScript support
+- All i18n content uses shared documentId across locales (Strapi v5 localization model)
