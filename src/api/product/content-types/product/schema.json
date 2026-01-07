@@ -10,29 +10,13 @@
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
   "attributes": {
-    "name": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+    "name_by_locale": {
+      "type": "json",
       "required": true
     },
-    "description": {
-      "type": "text",
-      "required": false,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "description_by_locale": {
+      "type": "json"
     },
     "on_hold": {
       "type": "boolean",
@@ -48,13 +32,8 @@
       "required": false,
       "allowedTypes": ["images"]
     },
-    "ingredients": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "ingredients_by_locale": {
+      "type": "json"
     },
     "subcategory": {
       "type": "relation",

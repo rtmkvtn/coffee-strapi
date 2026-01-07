@@ -470,33 +470,18 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    description_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::category.category'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     order: Schema.Attribute.Integer
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>
     publishedAt: Schema.Attribute.DateTime
@@ -521,28 +506,18 @@ export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
     description: Schema.Attribute.Text
-    locale: Schema.Attribute.String
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::ingredient.ingredient'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -605,26 +580,17 @@ export interface ApiPortionPortion extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    locale: Schema.Attribute.String
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::portion.portion'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     publishedAt: Schema.Attribute.DateTime
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -743,42 +709,22 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
   attributes: {
     avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    description_by_locale: Schema.Attribute.JSON
     images: Schema.Attribute.Media<'images', true>
-    ingredients: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    ingredients_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::product.product'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     on_hold: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     order: Schema.Attribute.Integer
     publishedAt: Schema.Attribute.DateTime
@@ -803,35 +749,20 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: false
   }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
-  }
   attributes: {
     avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    description_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::subcategory.subcategory'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     order: Schema.Attribute.Integer
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>
     publishedAt: Schema.Attribute.DateTime

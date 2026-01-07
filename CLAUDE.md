@@ -52,11 +52,11 @@ The application supports multiple databases (PostgreSQL, MySQL, SQLite) configur
 ### Content Types Structure
 The application follows Strapi's content-type architecture with these main entities:
 
-- **Product**: Core coffee products with localized content (i18n)
-- **Category**: Main product categories (e.g., "Напитки", "Еда")
-- **Subcategory**: Product subcategories within categories
-- **Ingredient**: Additional ingredients for products (includes optional weight field)
-- **Portion**: Different serving sizes for products
+- **Product**: Core coffee products with JSON-based localization (ru, en, zh)
+- **Category**: Main product categories (e.g., "Напитки", "Еда") with JSON localization
+- **Subcategory**: Product subcategories within categories with JSON localization
+- **Ingredient**: Additional ingredients for products with JSON localization (includes optional weight field)
+- **Portion**: Different serving sizes for products with JSON localization
 - **Temperature**: Temperature options for products (hot/cold enumeration)
 - **Order**: Customer orders
 - **Cart**: Shopping cart functionality
@@ -68,7 +68,10 @@ The application uses junction tables to handle many-to-many relationships:
 - `product-totemperature`: Links products to temperature options (hot/cold)
 
 ### Key Features
-- **Internationalization**: Products support multiple locales (ru, en, zh) via i18n plugin
+- **Internationalization**: Products support multiple locales (ru, en, zh) via JSON-based localization
+  - Uses `name_by_locale`, `description_by_locale`, `ingredients_by_locale` JSON fields
+  - More efficient than Strapi native i18n (avoids Strapi v5 i18n bugs, 66% fewer database rows)
+  - All locales stored in single record instead of separate records per locale
 - **Caching System**: In-memory cache with TTL support for products, categories, ingredients, and portions
 - **Custom Controllers**: Enhanced product controller with custom `getAll` method that populates related data
 - **Telegram Integration**: Custom Telegram auth endpoint at `/api/telegram/auth`
@@ -156,13 +159,38 @@ Key environment variables for database configuration:
 ## Bootstrap System
 
 The application includes a comprehensive bootstrap system that automatically initializes data on startup:
-- **Multi-locale Support**: Automatically creates ru, en, zh locales and localized content
+- **JSON-based Localization**: Creates entities with JSON fields containing all locales (ru, en, zh) in a single record
+  - Example: `{ name_by_locale: { ru: "Напитки", en: "Beverages", zh: "饮品" } }`
 - **Data Initialization**: Categories, subcategories, portions, temperatures, and products
 - **Image Upload**: Automatically uploads product and subcategory images (SVGs for subcategories)
 - **Junction Tables**: Automatically creates product-toportion and product-totemperature relationships
-- **Clean Mode**: Supports `cleanTables` parameter to reset database before bootstrapping
+- **Clean Mode**: Supports `CLEAN_TABLES=true` environment variable to reset database before bootstrapping
 
 The bootstrap script (`src/initScripts/initProducts.ts`) is modular with separate files for each entity type.
+
+### Localization Structure
+
+All localized content types use JSON fields with the following pattern:
+```typescript
+{
+  name_by_locale: {
+    ru: "Русское название",
+    en: "English name",
+    zh: "中文名称"
+  },
+  description_by_locale: {
+    ru: "Русское описание",
+    en: "English description",
+    zh: "中文描述"
+  }
+}
+```
+
+This approach provides:
+- **Efficiency**: 66% fewer database rows compared to Strapi native i18n
+- **Reliability**: Avoids Strapi v5 i18n bugs (Issue #24445)
+- **Simplicity**: No complex locale management or documentId linking
+- **Performance**: Single database query returns all locales
 
 ## Development Notes
 
@@ -171,3 +199,4 @@ The bootstrap script (`src/initScripts/initProducts.ts`) is modular with separat
 - Media files are stored in `public/uploads/` with automatic image resizing
 - The project uses Strapi v5.12.5 with TypeScript support
 - All i18n content uses shared documentId across locales (Strapi v5 localization model)
+- kill dev process after tests, as i usually run dev server from other terminal

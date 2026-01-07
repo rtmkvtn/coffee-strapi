@@ -10,20 +10,10 @@
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
   "attributes": {
-    "name": {
-      "type": "string",
-      "required": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "name_by_locale": {
+      "type": "json",
+      "required": true
     },
     "description": {
       "type": "text"

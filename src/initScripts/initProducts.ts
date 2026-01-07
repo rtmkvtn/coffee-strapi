@@ -117,76 +117,48 @@ export const initProducts = async (
         console.error('Error deleting uploaded files:', error)
       }
 
-      // Delete all products (fetch from each locale and delete each locale)
-      const allProducts = []
-      for (const locale of LOCALES) {
-        const products = await strapi
+      // Delete all products
+      const products = await strapi
+        .documents('api::product.product')
+        .findMany({ limit: 999 })
+      console.log(`Found ${products.length} products`)
+      for (const product of products) {
+        await strapi
           .documents('api::product.product')
-          .findMany({ locale, limit: 999 })
-        allProducts.push(...products)
-      }
-      console.log(`Found ${allProducts.length} product entries`)
-
-      // Delete each locale separately
-      for (const product of allProducts) {
-        await strapi.documents('api::product.product').delete({
-          documentId: product.documentId,
-          locale: product.locale,
-        })
+          .delete({ documentId: product.documentId })
       }
 
-      // Delete all subcategories (fetch from each locale and delete each locale)
-      const allSubcategories = []
-      for (const locale of LOCALES) {
-        const subcategories = await strapi
+      // Delete all subcategories
+      const subcategories = await strapi
+        .documents('api::subcategory.subcategory')
+        .findMany({ limit: 999 })
+      console.log(`Found ${subcategories.length} subcategories`)
+      for (const subcategory of subcategories) {
+        await strapi
           .documents('api::subcategory.subcategory')
-          .findMany({ locale, limit: 999 })
-        allSubcategories.push(...subcategories)
-      }
-      console.log(`Found ${allSubcategories.length} subcategory entries`)
-
-      // Delete each locale separately
-      for (const subcategory of allSubcategories) {
-        await strapi.documents('api::subcategory.subcategory').delete({
-          documentId: subcategory.documentId,
-          locale: subcategory.locale,
-        })
+          .delete({ documentId: subcategory.documentId })
       }
 
-      // Delete all categories (fetch from each locale and delete each locale)
-      const allCategories = []
-      for (const locale of LOCALES) {
-        const categories = await strapi
+      // Delete all categories
+      const categories = await strapi
+        .documents('api::category.category')
+        .findMany({ limit: 999 })
+      console.log(`Found ${categories.length} categories`)
+      for (const category of categories) {
+        await strapi
           .documents('api::category.category')
-          .findMany({ locale, limit: 999 })
-        allCategories.push(...categories)
-      }
-      console.log(`Found ${allCategories.length} category entries`)
-
-      // Delete each locale separately
-      for (const category of allCategories) {
-        await strapi.documents('api::category.category').delete({
-          documentId: category.documentId,
-          locale: category.locale,
-        })
+          .delete({ documentId: category.documentId })
       }
 
-      // Delete all portions (fetch from each locale and delete each locale)
-      const allPortions = []
-      for (const locale of LOCALES) {
-        const portions = await strapi
+      // Delete all portions
+      const portions = await strapi
+        .documents('api::portion.portion')
+        .findMany({ limit: 999 })
+      console.log(`Found ${portions.length} portions`)
+      for (const portion of portions) {
+        await strapi
           .documents('api::portion.portion')
-          .findMany({ locale, limit: 999 })
-        allPortions.push(...portions)
-      }
-      console.log(`Found ${allPortions.length} portion entries`)
-
-      // Delete each locale separately
-      for (const portion of allPortions) {
-        await strapi.documents('api::portion.portion').delete({
-          documentId: portion.documentId,
-          locale: portion.locale,
-        })
+          .delete({ documentId: portion.documentId })
       }
 
       // Delete all temperatures
@@ -206,12 +178,12 @@ export const initProducts = async (
       throw error
     }
   } else {
-    // Check if we already have categories
-    const existingCategories = await strapi
-      .documents('api::category.category')
-      .findMany()
+    // Check if we already have categories (check across all locales)
+    const categoryCount = await strapi.db
+      .query('api::category.category')
+      .count()
 
-    if (existingCategories.length > 0) {
+    if (categoryCount > 0) {
       console.log('Database already has data, skipping bootstrap')
       return
     }
@@ -240,34 +212,24 @@ export const initProducts = async (
     }
   }
 
-  // Create portions in all locales and store their document IDs
+  // Create portions
   console.log('Creating portions...')
   const portionIds: Record<string, any> = {}
 
   for (const portionData of portionsData) {
     const portionName = portionData.translations['ru'].name
 
-    // Create first locale
     const portion = await strapi.documents('api::portion.portion').create({
       data: {
-        name: portionData.translations['ru'].name,
+        name_by_locale: {
+          ru: portionData.translations.ru.name,
+          en: portionData.translations.en.name,
+          zh: portionData.translations.zh.name,
+        },
       },
-      locale: 'ru',
     })
 
-    const documentId = portion.documentId
-    portionIds[portionName] = documentId
-
-    // Create localizations for other locales
-    for (const locale of LOCALES.slice(1)) {
-      await strapi.documents('api::portion.portion').create({
-        data: {
-          name: portionData.translations[locale].name,
-        },
-        locale,
-        documentId, // Use the same documentId to create a localization
-      })
-    }
+    portionIds[portionName] = portion.documentId
   }
 
   // Create temperatures and store their document IDs
@@ -285,35 +247,28 @@ export const initProducts = async (
     temperatureIds[temperatureData.type] = temperature.documentId
   }
 
-  // Create categories in all locales
+  // Create categories
   console.log('Creating categories...')
   for (const categoryData of categoriesData) {
     const categoryType = categoryData.order === 1 ? 'beverages' : 'food'
 
-    // Create category (first locale, then localizations)
     const category = await strapi.documents('api::category.category').create({
       data: {
-        name: categoryData.translations['ru'].name,
-        description: categoryData.translations['ru'].description,
+        name_by_locale: {
+          ru: categoryData.translations.ru.name,
+          en: categoryData.translations.en.name,
+          zh: categoryData.translations.zh.name,
+        },
+        description_by_locale: {
+          ru: categoryData.translations.ru.description,
+          en: categoryData.translations.en.description,
+          zh: categoryData.translations.zh.description,
+        },
         order: categoryData.order,
       },
-      locale: 'ru',
     })
 
     const categoryDocumentId = category.documentId
-
-    // Create localizations for other locales
-    for (const locale of LOCALES.slice(1)) {
-      await strapi.documents('api::category.category').create({
-        data: {
-          name: categoryData.translations[locale].name,
-          description: categoryData.translations[locale].description,
-          order: categoryData.order,
-        },
-        locale,
-        documentId: categoryDocumentId,
-      })
-    }
 
     // Get subcategories for this category
     const subcategoriesList = subcategoriesData[categoryType]
@@ -341,10 +296,18 @@ export const initProducts = async (
         }
       }
 
-      // Create subcategory (first locale, then localizations)
+      // Create subcategory
       const subcategoryPayload: any = {
-        name: subcategoryData.translations['ru'].name,
-        description: subcategoryData.translations['ru'].description,
+        name_by_locale: {
+          ru: subcategoryData.translations.ru.name,
+          en: subcategoryData.translations.en.name,
+          zh: subcategoryData.translations.zh.name,
+        },
+        description_by_locale: {
+          ru: subcategoryData.translations.ru.description,
+          en: subcategoryData.translations.en.description,
+          zh: subcategoryData.translations.zh.description,
+        },
         order: subcategoryData.order,
         category: categoryDocumentId,
       }
@@ -358,31 +321,9 @@ export const initProducts = async (
         .documents('api::subcategory.subcategory')
         .create({
           data: subcategoryPayload,
-          locale: 'ru',
         })
 
       const subcategoryDocumentId = subcategory.documentId
-
-      // Create localizations for other locales (without relations)
-      for (const locale of LOCALES.slice(1)) {
-        const localizedSubcategoryPayload: any = {
-          name: subcategoryData.translations[locale].name,
-          description: subcategoryData.translations[locale].description,
-          order: subcategoryData.order,
-          // Don't include category - relations are shared across locales
-        }
-
-        // Add image URL if available (same URL for all locales)
-        if (subcategoryImageUrl) {
-          localizedSubcategoryPayload.avatar = subcategoryImageUrl
-        }
-
-        await strapi.documents('api::subcategory.subcategory').create({
-          data: localizedSubcategoryPayload,
-          locale,
-          documentId: subcategoryDocumentId,
-        })
-      }
 
       // Get products for this subcategory
       const productKey = subcategoryToProducts[subcategoryIndex]
@@ -412,11 +353,23 @@ export const initProducts = async (
           }
         }
 
-        // Create product (first locale, then localizations)
+        // Create product
         const productPayload: any = {
-          name: productData.translations['ru'].name,
-          description: productData.translations['ru'].description,
-          ingredients: productData.translations['ru'].ingredients,
+          name_by_locale: {
+            ru: productData.translations.ru.name,
+            en: productData.translations.en.name,
+            zh: productData.translations.zh.name,
+          },
+          description_by_locale: {
+            ru: productData.translations.ru.description,
+            en: productData.translations.en.description,
+            zh: productData.translations.zh.description,
+          },
+          ingredients_by_locale: {
+            ru: productData.translations.ru.ingredients,
+            en: productData.translations.en.ingredients,
+            zh: productData.translations.zh.ingredients,
+          },
           order: productData.order,
           subcategory: subcategoryDocumentId,
           category: categoryDocumentId,
@@ -429,32 +382,9 @@ export const initProducts = async (
 
         const product = await strapi.documents('api::product.product').create({
           data: productPayload,
-          locale: 'ru',
         })
 
         const productDocumentId = product.documentId
-
-        // Create localizations for other locales (without relations)
-        for (const locale of LOCALES.slice(1)) {
-          const localizedPayload: any = {
-            name: productData.translations[locale].name,
-            description: productData.translations[locale].description,
-            ingredients: productData.translations[locale].ingredients,
-            order: productData.order,
-            // Don't include subcategory/category - relations are shared across locales
-          }
-
-          // Add image URL if available (same URL for all locales)
-          if (imageUrl) {
-            localizedPayload.avatar = imageUrl
-          }
-
-          await strapi.documents('api::product.product').create({
-            data: localizedPayload,
-            locale,
-            documentId: productDocumentId,
-          })
-        }
 
         // Create product-toportion entries for each portion/price pair
         for (let i = 0; i < productData.portion.length; i++) {

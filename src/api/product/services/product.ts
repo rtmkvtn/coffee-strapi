@@ -8,6 +8,14 @@ import {
   CacheKeys,
   invalidateProductCache,
 } from '../../../services/cache'
+import {
+  ProductToPortionWithRelations,
+  ProductToIngredientWithRelations,
+  ProductToTemperatureWithRelations,
+  ProductPrice,
+  ProductAdditionalIngredient,
+} from '../../../types/localization'
+import { validateLocalizedString } from '../../../utils/localization'
 
 export default factories.createCoreService(
   'api::product.product',
@@ -79,50 +87,96 @@ export default factories.createCoreService(
           filters: { product: { id: { $in: productIds } } },
           populate: ['portion', 'product'],
           limit: 10000,
-        }),
+        }) as unknown as ProductToPortionWithRelations[],
         strapi
           .documents('api::product-toingredient.product-toingredient')
           .findMany({
             filters: { product: { id: { $in: productIds } } },
             populate: ['ingredient', 'product'],
             limit: 10000,
-          }),
+          }) as unknown as ProductToIngredientWithRelations[],
         strapi
           .documents('api::product-totemperature.product-totemperature')
           .findMany({
             filters: { product: { id: { $in: productIds } } },
             populate: ['temperature', 'product'],
             limit: 10000,
-          }),
+          }) as unknown as ProductToTemperatureWithRelations[],
       ])
 
       // Group portions, ingredients, and temperatures by product ID for O(1) lookup
-      const portionsByProductId = new Map()
-      const ingredientsByProductId = new Map()
-      const temperaturesByProductId = new Map()
+      // This prevents N+1 query problem when mapping products to their relations
+      const portionsByProductId = new Map<
+        number,
+        ProductToPortionWithRelations[]
+      >()
+      const ingredientsByProductId = new Map<
+        number,
+        ProductToIngredientWithRelations[]
+      >()
+      const temperaturesByProductId = new Map<
+        number,
+        ProductToTemperatureWithRelations[]
+      >()
 
       allPortions.forEach((portion) => {
         const productId = portion.product?.id
+
+        if (!productId) {
+          strapi.log.warn(
+            'Found product-toportion entry with missing product relation',
+            {
+              portionId: portion.id,
+              portionDocumentId: portion.documentId,
+            }
+          )
+          return
+        }
+
         if (!portionsByProductId.has(productId)) {
           portionsByProductId.set(productId, [])
         }
-        portionsByProductId.get(productId).push(portion)
+        portionsByProductId.get(productId)!.push(portion)
       })
 
       allIngredients.forEach((ingredient) => {
         const productId = ingredient.product?.id
+
+        if (!productId) {
+          strapi.log.warn(
+            'Found product-toingredient entry with missing product relation',
+            {
+              ingredientId: ingredient.id,
+              ingredientDocumentId: ingredient.documentId,
+            }
+          )
+          return
+        }
+
         if (!ingredientsByProductId.has(productId)) {
           ingredientsByProductId.set(productId, [])
         }
-        ingredientsByProductId.get(productId).push(ingredient)
+        ingredientsByProductId.get(productId)!.push(ingredient)
       })
 
       allTemperatures.forEach((temperature) => {
         const productId = temperature.product?.id
+
+        if (!productId) {
+          strapi.log.warn(
+            'Found product-totemperature entry with missing product relation',
+            {
+              temperatureId: temperature.id,
+              temperatureDocumentId: temperature.documentId,
+            }
+          )
+          return
+        }
+
         if (!temperaturesByProductId.has(productId)) {
           temperaturesByProductId.set(productId, [])
         }
-        temperaturesByProductId.get(productId).push(temperature)
+        temperaturesByProductId.get(productId)!.push(temperature)
       })
 
       // Transform products with their related data and filter out products without prices
@@ -132,23 +186,24 @@ export default factories.createCoreService(
 
           // Get portions for this product
           const portions = portionsByProductId.get(productId) || []
-          const prices = portions.map((ptp: any) => ({
-            weight: ptp.portion?.name || '',
+          const prices: ProductPrice[] = portions.map((ptp) => ({
+            weight: validateLocalizedString(ptp.portion?.name_by_locale),
             price: ptp.price,
           }))
 
           // Get ingredients for this product
           const ingredients = ingredientsByProductId.get(productId) || []
-          const additional_ingredients = ingredients.map((pti: any) => ({
-            name: pti.ingredient?.name || '',
-            weight: pti.ingredient?.weight || '',
-            priceModifier: pti.priceModifier,
-          }))
+          const additional_ingredients: ProductAdditionalIngredient[] =
+            ingredients.map((pti) => ({
+              name: validateLocalizedString(pti.ingredient?.name_by_locale),
+              weight: pti.ingredient?.weight || '',
+              priceModifier: pti.priceModifier,
+            }))
 
           // Get temperatures for this product
           const temperatures = temperaturesByProductId.get(productId) || []
           const temperatureTypes = temperatures.map(
-            (ptt: any) => ptt.temperature?.type || ''
+            (ptt) => ptt.temperature?.type || ''
           )
 
           return {
