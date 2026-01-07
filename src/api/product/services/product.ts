@@ -9,11 +9,11 @@ import {
   invalidateProductCache,
 } from '../../../services/cache'
 import {
-  ProductToPortionWithRelations,
-  ProductToIngredientWithRelations,
-  ProductToTemperatureWithRelations,
-  ProductPrice,
   ProductAdditionalIngredient,
+  ProductPrice,
+  ProductToIngredientWithRelations,
+  ProductToPortionWithRelations,
+  ProductToTemperatureWithRelations,
 } from '../../../types/localization'
 import { validateLocalizedString } from '../../../utils/localization'
 
@@ -196,8 +196,9 @@ export default factories.createCoreService(
           const additional_ingredients: ProductAdditionalIngredient[] =
             ingredients.map((pti) => ({
               name: validateLocalizedString(pti.ingredient?.name_by_locale),
-              weight: pti.ingredient?.weight || '',
+              weight: validateLocalizedString(pti.ingredient?.weight_by_locale),
               priceModifier: pti.priceModifier,
+              id: pti.id,
             }))
 
           // Get temperatures for this product

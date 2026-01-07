@@ -42,7 +42,7 @@ export interface ProductToIngredientWithRelations {
     id: number
     documentId: string
     name_by_locale: LocalizedString
-    weight: string
+    weight_by_locale: LocalizedString
   }
   priceModifier: number
 }
@@ -74,6 +74,6 @@ export interface ProductPrice {
  */
 export interface ProductAdditionalIngredient {
   name: LocalizedString
-  weight: string
+  weight: LocalizedString
   priceModifier: number
 }

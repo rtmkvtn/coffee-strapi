@@ -510,7 +510,6 @@ export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -522,7 +521,7 @@ export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    weight: Schema.Attribute.String
+    weight_by_locale: Schema.Attribute.JSON
   }
 }
 

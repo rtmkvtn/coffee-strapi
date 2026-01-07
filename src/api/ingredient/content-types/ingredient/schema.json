@@ -15,11 +15,8 @@
       "type": "json",
       "required": true
     },
-    "description": {
-      "type": "text"
-    },
-    "weight": {
-      "type": "string"
+    "weight_by_locale": {
+      "type": "json"
     }
   }
 }
