@@ -1,242 +1,429 @@
+import * as fs from 'fs'
+import * as path from 'path'
+
 import { Strapi } from '@strapi/types/dist/core'
 
-export const initProducts = async (strapi: Strapi) => {
-  // Check if we already have categories
-  const existingCategories = await strapi.entityService.findMany(
-    'api::category.category',
-    {
-      populate: '*',
-    }
-  )
+import { categoriesData } from './initProducts/categories'
+import { portionsData } from './initProducts/portions'
+import { productsData } from './initProducts/products'
+import {
+  subcategoriesData,
+  subcategoryToProducts,
+} from './initProducts/subcategories'
+import { temperaturesData } from './initProducts/temperatures'
 
-  if (existingCategories.length > 0) {
-    console.log('Database already has data, skipping bootstrap')
-    return
+const LOCALES = ['ru', 'en', 'zh'] as const
+
+const uploadImageToStrapi = async (
+  strapi: Strapi,
+  imagePath: string
+): Promise<string | null> => {
+  try {
+    if (!fs.existsSync(imagePath)) {
+      console.warn(`Image file not found: ${imagePath}`)
+      return null
+    }
+
+    const fileName = path.basename(imagePath)
+    const fileStats = fs.statSync(imagePath)
+
+    // Upload file using Strapi's upload service
+    const uploadedFiles = await strapi
+      .plugin('upload')
+      .service('upload')
+      .upload({
+        data: {},
+        files: {
+          filepath: imagePath,
+          originalFilename: fileName,
+          mimetype: `image/${path.extname(imagePath).substring(1)}`,
+          size: fileStats.size,
+        },
+      })
+
+    if (uploadedFiles && uploadedFiles.length > 0) {
+      // Return the URL of the uploaded file
+      return uploadedFiles[0].url
+    }
+
+    return null
+  } catch (error) {
+    console.error(`Error uploading image ${imagePath}:`, error)
+    return null
+  }
+}
+
+export const initProducts = async (
+  strapi: Strapi,
+  cleanTables: boolean = false
+) => {
+  // Clean all tables if requested
+  if (cleanTables) {
+    console.log('Cleaning database tables...')
+
+    try {
+      // Delete all product-toportion entries
+      const productToPortions = await strapi
+        .documents('api::product-toportion.product-toportion')
+        .findMany({ limit: 999 })
+      console.log(`Found ${productToPortions.length} product-toportion entries`)
+      for (const item of productToPortions) {
+        await strapi
+          .documents('api::product-toportion.product-toportion')
+          .delete({ documentId: item.documentId })
+      }
+
+      // Delete all product-toingredient entries
+      const productToIngredients = await strapi
+        .documents('api::product-toingredient.product-toingredient')
+        .findMany({ limit: 999 })
+      console.log(
+        `Found ${productToIngredients.length} product-toingredient entries`
+      )
+      for (const item of productToIngredients) {
+        await strapi
+          .documents('api::product-toingredient.product-toingredient')
+          .delete({ documentId: item.documentId })
+      }
+
+      // Delete all product-totemperature entries (if exists)
+      try {
+        const productToTemperatures = await strapi
+          .documents('api::product-totemperature.product-totemperature')
+          .findMany({ limit: 999 })
+        console.log(
+          `Found ${productToTemperatures.length} product-totemperature entries`
+        )
+        for (const item of productToTemperatures) {
+          await strapi
+            .documents('api::product-totemperature.product-totemperature')
+            .delete({ documentId: item.documentId })
+        }
+      } catch (error) {
+        // Skip if product-totemperature doesn't exist
+      }
+
+      // Delete all uploaded files
+      try {
+        const uploadedFiles = await strapi
+          .documents('plugin::upload.file')
+          .findMany({ limit: 999 })
+        console.log(`Found ${uploadedFiles.length} uploaded files`)
+        for (const file of uploadedFiles) {
+          await strapi.plugin('upload').service('upload').remove(file)
+        }
+        console.log(`Deleted ${uploadedFiles.length} uploaded files`)
+      } catch (error) {
+        console.error('Error deleting uploaded files:', error)
+      }
+
+      // Delete all products
+      const products = await strapi
+        .documents('api::product.product')
+        .findMany({ limit: 999 })
+      console.log(`Found ${products.length} products`)
+      for (const product of products) {
+        await strapi
+          .documents('api::product.product')
+          .delete({ documentId: product.documentId })
+      }
+
+      // Delete all subcategories
+      const subcategories = await strapi
+        .documents('api::subcategory.subcategory')
+        .findMany({ limit: 999 })
+      console.log(`Found ${subcategories.length} subcategories`)
+      for (const subcategory of subcategories) {
+        await strapi
+          .documents('api::subcategory.subcategory')
+          .delete({ documentId: subcategory.documentId })
+      }
+
+      // Delete all categories
+      const categories = await strapi
+        .documents('api::category.category')
+        .findMany({ limit: 999 })
+      console.log(`Found ${categories.length} categories`)
+      for (const category of categories) {
+        await strapi
+          .documents('api::category.category')
+          .delete({ documentId: category.documentId })
+      }
+
+      // Delete all portions
+      const portions = await strapi
+        .documents('api::portion.portion')
+        .findMany({ limit: 999 })
+      console.log(`Found ${portions.length} portions`)
+      for (const portion of portions) {
+        await strapi
+          .documents('api::portion.portion')
+          .delete({ documentId: portion.documentId })
+      }
+
+      // Delete all temperatures
+      const temperatures = await strapi
+        .documents('api::temperature.temperature')
+        .findMany()
+      console.log(`Found ${temperatures.length} temperatures`)
+      for (const temperature of temperatures) {
+        await strapi
+          .documents('api::temperature.temperature')
+          .delete({ documentId: temperature.documentId })
+      }
+
+      console.log('Database tables cleaned successfully')
+    } catch (error) {
+      console.error('Error cleaning database tables:', error)
+      throw error
+    }
+  } else {
+    // Check if we already have categories (check across all locales)
+    const categoryCount = await strapi.db
+      .query('api::category.category')
+      .count()
+
+    if (categoryCount > 0) {
+      console.log('Database already has data, skipping bootstrap')
+      return
+    }
   }
 
   console.log('Starting database bootstrap...')
 
-  // Create categories
-  const categories = [
-    {
-      name: 'Напитки',
-      description: 'Разнообразные напитки',
-      order: 1,
-      locale: 'ru',
-      publishedAt: new Date(),
-    },
-    {
-      name: 'Еда',
-      description: 'Вкусная еда',
-      order: 2,
-      locale: 'ru',
-      publishedAt: new Date(),
-    },
-  ]
-
-  const productsByCategory = {
-    Напитки: {
-      Кофе: [
-        { name: 'Эспрессо', weight: '40мл', price: 100, locale: 'ru' },
-        { name: 'Американо', weight: '200мл', price: 110, locale: 'ru' },
-        { name: 'Американо', weight: '300мл', price: 130, locale: 'ru' },
-        { name: 'Капучино', weight: '200мл', price: 130, locale: 'ru' },
-        { name: 'Капучино', weight: '300мл', price: 150, locale: 'ru' },
-        { name: 'Латте', weight: '450мл', price: 180, locale: 'ru' },
-        { name: 'Раф', weight: '300мл', price: 200, locale: 'ru' },
-        { name: 'Кудровый раф', weight: '300мл', price: 160, locale: 'ru' },
-        { name: 'Мокачино', weight: '300мл', price: 160, locale: 'ru' },
-        { name: 'Флэт уайт', weight: '200мл', price: 180, locale: 'ru' },
-      ],
-      'Авторский чай': [
-        { name: 'Пряный манго', weight: '450мл', price: 200, locale: 'ru' },
-        { name: 'Сибирский', weight: '450мл', price: 200, locale: 'ru' },
-        {
-          name: 'Малина-грейпфрут',
-          weight: '450мл',
-          price: 200,
-          locale: 'ru',
-        },
-        {
-          name: 'Облепиховый с мятой',
-          weight: '450мл',
-          price: 200,
-          locale: 'ru',
-        },
-      ],
-      'Не кофе': [
-        {
-          name: 'Пунш брусника-малина',
-          weight: '',
-          price: 150,
-          locale: 'ru',
-        },
-        { name: 'Пунш тропический', weight: '', price: 150, locale: 'ru' },
-        { name: 'Глинтвейн', weight: '', price: 180, locale: 'ru' },
-        { name: 'Горячий шоколад', weight: '', price: 180, locale: 'ru' },
-        { name: 'Какао', weight: '200мл', price: 100, locale: 'ru' },
-        { name: 'Какао', weight: '300мл', price: 150, locale: 'ru' },
-        { name: 'Чай Svay', weight: '', price: 100, locale: 'ru' },
-      ],
-      Милкшейк: [
-        { name: 'Клубничный', weight: '450мл', price: 220, locale: 'ru' },
-        { name: 'Банановый', weight: '450мл', price: 220, locale: 'ru' },
-        { name: 'Карамельный', weight: '450мл', price: 220, locale: 'ru' },
-      ],
-      Лимонады: [
-        {
-          name: 'Маракуйя-розмарин',
-          weight: '350мл',
-          price: 180,
-          locale: 'ru',
-        },
-        { name: 'Малиновый', weight: '350мл', price: 180, locale: 'ru' },
-        { name: 'Манго-апельсин', weight: '350мл', price: 180, locale: 'ru' },
-        {
-          name: 'Клубничный апероль',
-          weight: '350мл',
-          price: 180,
-          locale: 'ru',
-        },
-        {
-          name: 'Мандарин-имбирь',
-          weight: '350мл',
-          price: 180,
-          locale: 'ru',
-        },
-      ],
-      Смузи: [
-        { name: 'Лесные ягоды', weight: '350мл', price: 200, locale: 'ru' },
-        { name: 'Пина-колада', weight: '350мл', price: 200, locale: 'ru' },
-        { name: 'Тропический', weight: '350мл', price: 200, locale: 'ru' },
-        { name: 'Клубника-банак', weight: '350мл', price: 200, locale: 'ru' },
-        { name: 'Персик-манго', weight: '350мл', price: 200, locale: 'ru' },
-      ],
-    },
-    Еда: {
-      Шаурма: [
-        { name: 'Классическая', weight: '', price: 200, locale: 'ru' },
-        { name: 'Большая', weight: '', price: 250, locale: 'ru' },
-        { name: 'Овощная', weight: '', price: 130, locale: 'ru' },
-        {
-          name: 'Шаурма + 5 наггетсов',
-          weight: '',
-          price: 270,
-          locale: 'ru',
-        },
-      ],
-      Салаты: [
-        { name: 'Цезарь', weight: '', price: 190, locale: 'ru' },
-        { name: 'Греческий', weight: '', price: 190, locale: 'ru' },
-        { name: 'Летний', weight: '', price: 170, locale: 'ru' },
-      ],
-      Закуски: [
-        { name: 'Картофель фри', weight: '', price: 100, locale: 'ru' },
-        { name: 'Наггетсы', weight: '', price: 100, locale: 'ru' },
-        { name: 'Corn dog', weight: '', price: 100, locale: 'ru' },
-        { name: 'Сырные палочки', weight: '', price: 70, locale: 'ru' },
-        { name: 'Hot dog', weight: '', price: 160, locale: 'ru' },
-      ],
-      Блинчики: [
-        { name: 'Без начинки', weight: '2шт', price: 100, locale: 'ru' },
-        {
-          name: 'С ветчиной и сыром',
-          weight: '2шт',
-          price: 150,
-          locale: 'ru',
-        },
-        { name: 'С сыром и икрой', weight: '2шт', price: 180, locale: 'ru' },
-        { name: 'С брусникой', weight: '2шт', price: 130, locale: 'ru' },
-        { name: 'С Nutella', weight: '2шт', price: 150, locale: 'ru' },
-        {
-          name: 'С шоколадом и бананом',
-          weight: '2шт',
-          price: 150,
-          locale: 'ru',
-        },
-        {
-          name: 'С клубникой и бананом',
-          weight: '2шт',
-          price: 150,
-          locale: 'ru',
-        },
-        { name: 'Со сгущёнкой', weight: '2шт', price: 130, locale: 'ru' },
-      ],
-      Десерты: [
-        { name: 'Cheese-cake', weight: '', price: 160, locale: 'ru' },
-        { name: 'Сырники', weight: '', price: 170, locale: 'ru' },
-        { name: 'Маффин', weight: '', price: 120, locale: 'ru' },
-        { name: 'Круассан', weight: '', price: 150, locale: 'ru' },
-        { name: 'Донатс', weight: '', price: 100, locale: 'ru' },
-      ],
-    },
+  // Ensure required locales exist
+  const localeConfigs = {
+    ru: { code: 'ru', name: 'Russian (ru)' },
+    en: { code: 'en', name: 'English (en)' },
+    zh: { code: 'zh', name: 'Chinese (zh)' },
   }
 
-  for (const categoryData of categories) {
-    const category = await strapi.entityService.create(
-      'api::category.category',
-      {
-        data: categoryData,
-      }
-    )
+  console.log('Checking and creating locales...')
+  const existingLocales = await strapi.plugin('i18n').service('locales').find()
+  const existingLocaleCodes = existingLocales.map((l) => l.code)
 
-    // Create subcategories for each category
-    let subcategories = []
-
-    if (category.name === 'Напитки') {
-      subcategories = [
-        { name: 'Милкшейк', order: 1, locale: 'ru' },
-        { name: 'Лимонады', order: 2, locale: 'ru' },
-        { name: 'Смузи', order: 3, locale: 'ru' },
-        { name: 'Кофе', order: 4, locale: 'ru' },
-        { name: 'Авторский чай', order: 5, locale: 'ru' },
-        { name: 'Не кофе', order: 6, locale: 'ru' },
-      ]
-    } else if (category.name === 'Еда') {
-      subcategories = [
-        { name: 'Шаурма', order: 1, locale: 'ru' },
-        { name: 'Салаты', order: 2, locale: 'ru' },
-        { name: 'Закуски', order: 3, locale: 'ru' },
-        { name: 'Блинчики', order: 4, locale: 'ru' },
-        { name: 'Десерты', order: 5, locale: 'ru' },
-      ]
+  for (const locale of LOCALES) {
+    if (!existingLocaleCodes.includes(locale)) {
+      console.log(`Creating locale: ${locale}`)
+      await strapi
+        .plugin('i18n')
+        .service('locales')
+        .create(localeConfigs[locale])
     }
+  }
 
-    for (const subcategoryData of subcategories) {
-      const subcategory = await strapi.entityService.create(
-        'api::subcategory.subcategory',
-        {
-          data: {
-            ...subcategoryData,
-            description: `Описание ${subcategoryData.name.toLowerCase()}`,
-            category: category.id,
-            locale: 'ru',
-            publishedAt: new Date(),
-          },
+  // Create portions
+  console.log('Creating portions...')
+  const portionIds: Record<string, any> = {}
+
+  for (const portionData of portionsData) {
+    const portionName = portionData.translations['ru'].name
+
+    const portion = await strapi.documents('api::portion.portion').create({
+      data: {
+        name_by_locale: {
+          ru: portionData.translations.ru.name,
+          en: portionData.translations.en.name,
+          zh: portionData.translations.zh.name,
+        },
+      },
+    })
+
+    portionIds[portionName] = portion.documentId
+  }
+
+  // Create temperatures and store their document IDs
+  console.log('Creating temperatures...')
+  const temperatureIds: Record<string, any> = {}
+
+  for (const temperatureData of temperaturesData) {
+    const temperature = await strapi
+      .documents('api::temperature.temperature')
+      .create({
+        data: {
+          type: temperatureData.type,
+        },
+      })
+    temperatureIds[temperatureData.type] = temperature.documentId
+  }
+
+  // Create categories
+  console.log('Creating categories...')
+  for (const categoryData of categoriesData) {
+    const categoryType = categoryData.order === 1 ? 'beverages' : 'food'
+
+    const category = await strapi.documents('api::category.category').create({
+      data: {
+        name_by_locale: {
+          ru: categoryData.translations.ru.name,
+          en: categoryData.translations.en.name,
+          zh: categoryData.translations.zh.name,
+        },
+        description_by_locale: {
+          ru: categoryData.translations.ru.description,
+          en: categoryData.translations.en.description,
+          zh: categoryData.translations.zh.description,
+        },
+        order: categoryData.order,
+      },
+    })
+
+    const categoryDocumentId = category.documentId
+
+    // Get subcategories for this category
+    const subcategoriesList = subcategoriesData[categoryType]
+    let subcategoryIndex = categoryData.order === 1 ? 0 : 6
+
+    // Create subcategories and products for each subcategory
+    for (const subcategoryData of subcategoriesList) {
+      // Upload subcategory image if available
+      let subcategoryImageUrl: string | null = null
+      if (subcategoryData.image) {
+        const projectRoot = path.resolve(__dirname, '../../..')
+        const imagePath = path.join(
+          projectRoot,
+          'src',
+          'initScripts',
+          'initProducts',
+          'subcategories',
+          subcategoryData.image
+        )
+        subcategoryImageUrl = await uploadImageToStrapi(strapi, imagePath)
+        if (subcategoryImageUrl) {
+          console.log(
+            `Uploaded image for subcategory ${subcategoryData.translations['ru'].name}: ${subcategoryImageUrl}`
+          )
         }
-      )
-
-      // Create products for each subcategory
-      const products = productsByCategory[category.name][subcategory.name].map(
-        (product, index) => ({
-          name: product.name,
-          description: `${product.name}${product.weight ? ` - ${product.weight}` : ''}`,
-          price: product.price,
-          weight: product.weight,
-          ingredients: 'Ингредиенты продукта',
-          order: index + 1,
-          subcategory: subcategory.id,
-          category: category.id,
-          locale: 'ru',
-          publishedAt: new Date(),
-        })
-      )
-
-      for (const productData of products) {
-        await strapi.entityService.create('api::product.product', {
-          data: productData,
-        })
       }
+
+      // Create subcategory
+      const subcategoryPayload: any = {
+        name_by_locale: {
+          ru: subcategoryData.translations.ru.name,
+          en: subcategoryData.translations.en.name,
+          zh: subcategoryData.translations.zh.name,
+        },
+        description_by_locale: {
+          ru: subcategoryData.translations.ru.description,
+          en: subcategoryData.translations.en.description,
+          zh: subcategoryData.translations.zh.description,
+        },
+        order: subcategoryData.order,
+        category: categoryDocumentId,
+      }
+
+      // Add image URL if available
+      if (subcategoryImageUrl) {
+        subcategoryPayload.avatar = subcategoryImageUrl
+      }
+
+      const subcategory = await strapi
+        .documents('api::subcategory.subcategory')
+        .create({
+          data: subcategoryPayload,
+        })
+
+      const subcategoryDocumentId = subcategory.documentId
+
+      // Get products for this subcategory
+      const productKey = subcategoryToProducts[subcategoryIndex]
+      const products = productsData[productKey] || []
+
+      // Create products
+      for (const productData of products) {
+        // Upload image if available
+        let imageUrl: string | null = null
+        if (productData.image) {
+          // Use path relative to project root, not __dirname (which is in dist/)
+          const projectRoot = path.resolve(__dirname, '../../..')
+          const imagePath = path.join(
+            projectRoot,
+            'src',
+            'initScripts',
+            'initProducts',
+            'products',
+            'images',
+            productData.image
+          )
+          imageUrl = await uploadImageToStrapi(strapi, imagePath)
+          if (imageUrl) {
+            console.log(
+              `Uploaded image for ${productData.translations['ru'].name}: ${imageUrl}`
+            )
+          }
+        }
+
+        // Create product
+        const productPayload: any = {
+          name_by_locale: {
+            ru: productData.translations.ru.name,
+            en: productData.translations.en.name,
+            zh: productData.translations.zh.name,
+          },
+          description_by_locale: {
+            ru: productData.translations.ru.description,
+            en: productData.translations.en.description,
+            zh: productData.translations.zh.description,
+          },
+          ingredients_by_locale: {
+            ru: productData.translations.ru.ingredients,
+            en: productData.translations.en.ingredients,
+            zh: productData.translations.zh.ingredients,
+          },
+          order: productData.order,
+          subcategory: subcategoryDocumentId,
+          category: categoryDocumentId,
+        }
+
+        // Add image URL if available
+        if (imageUrl) {
+          productPayload.avatar = imageUrl
+        }
+
+        const product = await strapi.documents('api::product.product').create({
+          data: productPayload,
+        })
+
+        const productDocumentId = product.documentId
+
+        // Create product-toportion entries for each portion/price pair
+        for (let i = 0; i < productData.portion.length; i++) {
+          const portionName = productData.portion[i]
+          const price = productData.price[i]
+
+          // Skip empty portions
+          if (!portionName) continue
+
+          await strapi
+            .documents('api::product-toportion.product-toportion')
+            .create({
+              data: {
+                product: productDocumentId,
+                portion: portionIds[portionName],
+                price: price,
+              },
+            })
+        }
+
+        // Create product-totemperature entries for each temperature
+        if (productData.temperature && productData.temperature.length > 0) {
+          for (const temperatureType of productData.temperature) {
+            // Skip empty temperatures
+            if (!temperatureType) continue
+
+            await strapi
+              .documents('api::product-totemperature.product-totemperature')
+              .create({
+                data: {
+                  product: productDocumentId,
+                  temperature: temperatureIds[temperatureType],
+                },
+              })
+          }
+        }
+      }
+
+      subcategoryIndex++
     }
   }
 

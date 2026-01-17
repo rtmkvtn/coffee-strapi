@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run format:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npm run format:initProducts:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(npm view:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm audit:*)",
+      "Bash(python3:*)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run lint)",
+      "Read(//Users/fckxyz/Documents/projects.nosync/coffee/**)",
+      "Bash(npm run develop)"
+    ],
+    "deny": []
+  }
+}

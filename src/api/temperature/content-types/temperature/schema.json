@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "temperatures",
+  "info": {
+    "singularName": "temperature",
+    "pluralName": "temperatures",
+    "displayName": "temperature"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": ["cold", "hot"],
+      "default": "hot",
+      "required": true
+    }
+  }
+}

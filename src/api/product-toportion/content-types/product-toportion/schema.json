@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "product_toportions",
+  "info": {
+    "singularName": "product-toportion",
+    "pluralName": "product-toportions",
+    "displayName": "productToportion"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "portion": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::portion.portion"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true,
+      "default": 0
+    }
+  }
+}

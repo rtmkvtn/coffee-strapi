@@ -468,36 +468,20 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     singularName: 'category'
   }
   options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
+    draftAndPublish: false
   }
   attributes: {
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    description_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::category.category'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     order: Schema.Attribute.Integer
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>
     publishedAt: Schema.Attribute.DateTime
@@ -508,6 +492,36 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
+  }
+}
+
+export interface ApiIngredientIngredient extends Struct.CollectionTypeSchema {
+  collectionName: 'ingredients'
+  info: {
+    description: ''
+    displayName: 'ingredient'
+    pluralName: 'ingredients'
+    singularName: 'ingredient'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ingredient.ingredient'
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    weight_by_locale: Schema.Attribute.JSON
   }
 }
 
@@ -556,6 +570,134 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiPortionPortion extends Struct.CollectionTypeSchema {
+  collectionName: 'portions'
+  info: {
+    displayName: 'portion'
+    pluralName: 'portions'
+    singularName: 'portion'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::portion.portion'
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiProductToingredientProductToingredient
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_toingredients'
+  info: {
+    displayName: 'productToingredient'
+    pluralName: 'product-toingredients'
+    singularName: 'product-toingredient'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    ingredient: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::ingredient.ingredient'
+    >
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-toingredient.product-toingredient'
+    > &
+      Schema.Attribute.Private
+    priceModifier: Schema.Attribute.Decimal
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiProductToportionProductToportion
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_toportions'
+  info: {
+    displayName: 'productToportion'
+    pluralName: 'product-toportions'
+    singularName: 'product-toportion'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-toportion.product-toportion'
+    > &
+      Schema.Attribute.Private
+    portion: Schema.Attribute.Relation<'oneToOne', 'api::portion.portion'>
+    price: Schema.Attribute.Decimal &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiProductTotemperatureProductTotemperature
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'product_totemperatures'
+  info: {
+    displayName: 'productToTemperature'
+    pluralName: 'product-totemperatures'
+    singularName: 'product-totemperature'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::product-totemperature.product-totemperature'
+    > &
+      Schema.Attribute.Private
+    product: Schema.Attribute.Relation<'oneToOne', 'api::product.product'>
+    publishedAt: Schema.Attribute.DateTime
+    temperature: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::temperature.temperature'
+    >
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiProductProduct extends Struct.CollectionTypeSchema {
   collectionName: 'products'
   info: {
@@ -565,54 +707,26 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     singularName: 'product'
   }
   options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
+    draftAndPublish: false
   }
   attributes: {
-    avatar: Schema.Attribute.Media<'images' | 'files'>
+    avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    description_by_locale: Schema.Attribute.JSON
     images: Schema.Attribute.Media<'images', true>
-    ingredients: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    ingredients_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::product.product'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     on_hold: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>
     order: Schema.Attribute.Integer
-    price: Schema.Attribute.Decimal &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: false
-        }
-      }> &
-      Schema.Attribute.DefaultTo<0>
     publishedAt: Schema.Attribute.DateTime
     subcategory: Schema.Attribute.Relation<
       'manyToOne',
@@ -621,7 +735,6 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    weight: Schema.Attribute.String
   }
 }
 
@@ -634,39 +747,55 @@ export interface ApiSubcategorySubcategory extends Struct.CollectionTypeSchema {
     singularName: 'subcategory'
   }
   options: {
-    draftAndPublish: true
-  }
-  pluginOptions: {
-    i18n: {
-      localized: true
-    }
+    draftAndPublish: false
   }
   attributes: {
+    avatar: Schema.Attribute.String
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    locale: Schema.Attribute.String
+    description_by_locale: Schema.Attribute.JSON
+    locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::subcategory.subcategory'
-    >
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
+    > &
+      Schema.Attribute.Private
+    name_by_locale: Schema.Attribute.JSON & Schema.Attribute.Required
     order: Schema.Attribute.Integer
     products: Schema.Attribute.Relation<'oneToMany', 'api::product.product'>
     publishedAt: Schema.Attribute.DateTime
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiTemperatureTemperature extends Struct.CollectionTypeSchema {
+  collectionName: 'temperatures'
+  info: {
+    displayName: 'temperature'
+    pluralName: 'temperatures'
+    singularName: 'temperature'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  attributes: {
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::temperature.temperature'
+    > &
+      Schema.Attribute.Private
+    publishedAt: Schema.Attribute.DateTime
+    type: Schema.Attribute.Enumeration<['cold', 'hot']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'hot'>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -1194,9 +1323,15 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser
       'api::cart.cart': ApiCartCart
       'api::category.category': ApiCategoryCategory
+      'api::ingredient.ingredient': ApiIngredientIngredient
       'api::order.order': ApiOrderOrder
+      'api::portion.portion': ApiPortionPortion
+      'api::product-toingredient.product-toingredient': ApiProductToingredientProductToingredient
+      'api::product-toportion.product-toportion': ApiProductToportionProductToportion
+      'api::product-totemperature.product-totemperature': ApiProductTotemperatureProductTotemperature
       'api::product.product': ApiProductProduct
       'api::subcategory.subcategory': ApiSubcategorySubcategory
+      'api::temperature.temperature': ApiTemperatureTemperature
       'plugin::content-releases.release': PluginContentReleasesRelease
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction
       'plugin::i18n.locale': PluginI18NLocale

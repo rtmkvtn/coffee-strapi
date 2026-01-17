@@ -9,7 +9,15 @@ export default {
   },
   async bootstrap({ strapi }) {
     try {
-      await initProducts(strapi)
+      // Check if we should clean tables before bootstrap
+      const cleanTables = process.env.CLEAN_TABLES === 'true'
+      if (cleanTables) {
+        console.log(
+          'CLEAN_TABLES=true detected, will clean all tables before bootstrap'
+        )
+      }
+
+      await initProducts(strapi, cleanTables)
       await initRolesPermissions(strapi)
     } catch (e) {
       console.error('Error while bootstraping init data', e)

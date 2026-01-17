@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "portions",
+  "info": {
+    "singularName": "portion",
+    "pluralName": "portions",
+    "displayName": "portion"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name_by_locale": {
+      "type": "json",
+      "required": true
+    }
+  }
+}

@@ -8,33 +8,21 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
+    "draftAndPublish": false
   },
   "attributes": {
-    "name": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+    "name_by_locale": {
+      "type": "json",
       "required": true
     },
-    "description": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+    "description_by_locale": {
+      "type": "json"
     },
     "order": {
       "type": "integer"
+    },
+    "avatar": {
+      "type": "string"
     },
     "category": {
       "type": "relation",
