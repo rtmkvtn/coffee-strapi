@@ -8,7 +8,6 @@ export default factories.createCoreController(
   ({ strapi }) => ({
     async create(ctx) {
       try {
-        console.log(ctx.request.body)
         const { user } = ctx.state
         const { cartId } = ctx.request.body
 
@@ -65,7 +64,7 @@ export default factories.createCoreController(
             user: user.id,
             items: cart.items,
             amount,
-            state: 'waitingForPayment',
+            state: 'draft',
           },
         })
 

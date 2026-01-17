@@ -23,6 +23,7 @@
     "state": {
       "type": "enumeration",
       "enum": [
+        "draft",
         "waitingForPayment",
         "paymentProcessing",
         "paid",
@@ -39,7 +40,7 @@
     },
     "paymentMethod": {
       "type": "enumeration",
-      "enum": ["cash"]
+      "enum": ["cash", "card"]
     }
   }
 }
