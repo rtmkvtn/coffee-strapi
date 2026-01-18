@@ -20,6 +20,9 @@ jobs:
       - name: Deploy to Server
         run: |
           ssh -i ~/.ssh/id_ed25519 root@${{ secrets.SERVER_URL }} << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 20 || nvm install 20
             cd /root/coffee-strapi
             git pull origin master
             npm install --production
